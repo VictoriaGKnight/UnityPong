@@ -4,18 +4,71 @@ using UnityEngine;
 
 public class BallMovement : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        rb.velocity = new Vector2(3f, 3f);
-    }
+   private float speed = 5f;
+   private Vector2 direction;
+   private Rigidbody2D rb;
 
-    void OlisionEnter2D(Collision2D collision)
-    {
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        
-        rb.velocity = new Vector2(-rb.velocity.x, rb.velocity.y);
-        rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
-    }
+   public float Speed
+   {
+      get { return speed; }
+      set
+      {
+         if (value < 0)
+            speed = 0;
+         else
+            speed = value;
+      }
+   }
+
+   public Vector2 Direction
+   {
+      get { return direction; }
+      set
+      {
+         direction = value.normalized;
+      }
+   }
+   
+   void Start()
+   {
+      rb = GetComponent<Rigidbody2D>();
+      Direction = new Vector2(1f, 1f);
+      Speed = 5f;
+      rb.velocity = Direction * Speed;
+   }
+
+   void FixedUpdate()
+   {
+      rb.velocity = Direction * Speed;
+   }
+
+   void OnCollisionEnter2D(Collision2D collision)
+   {
+      if (collision.gameObject.CompareTag("Paddle"))
+      {
+         Direction = new Vector2(-direction.x, direction.y);
+      }
+      else if (collision.gameObject.CompareTag("wall"))
+      {
+         Direction = new Vector2(Direction.x, -Direction.y); 
+      }
+      rb.velocity = Direction * Speed;
+   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
