@@ -2,7 +2,7 @@ using Unity.VisualScripting;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-public class BallMovement : MonoBehaviour
+public class BallMovement : MonoBehaviour, ICollidable
 {
    private float speed = 5f;
    private Vector2 direction;
@@ -44,15 +44,27 @@ public class BallMovement : MonoBehaviour
 
    void OnCollisionEnter2D(Collision2D collision)
    {
+      ICollidable collidable = 
+         collision.gameObject.GetComponent<ICollidable>();
+
+      if (collidable != null)
+      {
+         collidable.OnHit(collision);
+      }
+
+      OnHit(collision);
+   }
+
+   public void OnHit(Collision2D collision)
+   {
       if (collision.gameObject.CompareTag("Paddle"))
       {
-         Direction = new Vector2(-direction.x, direction.y);
+         Direction = new Vector2(-Direction.x, Direction.y);
       }
       else if (collision.gameObject.CompareTag("wall"))
       {
-         Direction = new Vector2(Direction.x, -Direction.y); 
+         Direction = new Vector2(Direction.x, -Direction.y);
       }
-      rb.velocity = Direction * Speed;
    }
 }
 
