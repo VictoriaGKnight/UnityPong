@@ -1,8 +1,7 @@
-using Unity.VisualScripting;
-using UnityEditor.Callbacks;
 using UnityEngine;
+using Unity.Netcode;
 
-public class BallMovement : MonoBehaviour, ICollidable
+public class BallMovement : NetworkBehaviour, ICollidable
 {
    private float speed = 5f;
    private Vector2 direction;
@@ -29,31 +28,46 @@ public class BallMovement : MonoBehaviour, ICollidable
       }
    }
    
-   void Start()
+   void Awake()
    {
-      rb = GetComponent<Rigidbody2D>();
-      Direction = new Vector2(1f, 1f);
-      Speed = 5f;
-      rb.velocity = Direction * Speed;
+    rb = GetComponent<Rigidbody2D>();
+
+    if (!IsServer) return; 
+
+    Direction = new Vector2(1f, 1f);
+    Speed = 5f;
+    rb.velocity = Direction * Speed;
+   }
+
+   public override void OnNetworkSpawn()
+   {
+        if (!IsServer) return;
+
+        Direction = new Vector2(1f, 1f);
+        Speed = 5f;
+        rb.velocity = Direction * Speed;
    }
 
    void FixedUpdate()
    {
-      rb.velocity = Direction * Speed;
+    if (!IsServer) return; 
+    rb.velocity = Direction * Speed;
    }
+
 
    void OnCollisionEnter2D(Collision2D collision)
    {
-      ICollidable collidable = 
-         collision.gameObject.GetComponent<ICollidable>();
+    if (!IsServer) return; 
 
-      if (collidable != null)
-      {
-         collidable.OnHit(collision);
-      }
+    ICollidable collidable = collision.gameObject.GetComponent<ICollidable>();
+    if (collidable != null)
+    {
+        collidable.OnHit(collision);
+    }
 
-      OnHit(collision);
+    OnHit(collision);
    }
+
 
    public void OnHit(Collision2D collision)
    {
