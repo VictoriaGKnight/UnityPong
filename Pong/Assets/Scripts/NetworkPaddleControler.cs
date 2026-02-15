@@ -6,6 +6,9 @@ public class NetworkPaddleController : NetworkBehaviour
     [SerializeField] private float speed = 8f;
     [SerializeField] private float leftX = -8f;
     [SerializeField] private float rightX = 8f;
+    [SerializeField] private float minY = -4f;
+    [SerializeField] private float maxY = 4f;
+
 
     private Rigidbody2D rb;
 
@@ -28,8 +31,13 @@ public class NetworkPaddleController : NetworkBehaviour
 
             float newY = transform.position.y + (input * speed * Time.fixedDeltaTime);
 
+
+            newY = Mathf.Clamp(newY, minY, maxY);
+
+
             rb.MovePosition(new Vector2(rb.position.x, newY));
             syncedYPosition.Value = newY;
+
         }
         else
         {
